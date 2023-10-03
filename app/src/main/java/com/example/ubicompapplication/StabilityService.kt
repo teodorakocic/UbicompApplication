@@ -1,5 +1,6 @@
 package com.example.ubicompapplication
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,8 +12,15 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.ubicompapplication.Constants.Companion.CHANNEL_ID
 import com.example.ubicompapplication.Constants.Companion.notificationId
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 class StabilityService: Service() {
+
+    @SuppressLint("SimpleDateFormat")
+    private val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -38,11 +46,11 @@ class StabilityService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val description = "Running smart car assistant..."
+        val description = "Detected person at ${format.format(Date(Calendar.getInstance().time.time)).substring(11)}"
 
         val builderNotification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_car_home)
-            .setContentTitle("Stability system")
+            .setContentTitle("Person detected")
             .setContentText(description)
             .setAutoCancel(false)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

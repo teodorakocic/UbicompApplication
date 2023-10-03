@@ -50,6 +50,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.io.IOException
 import java.math.BigInteger
 import java.util.UUID
+import kotlin.math.abs
 
 
 @SuppressLint("MissingPermission")
@@ -65,8 +66,10 @@ class StabilityActivity : AppCompatActivity() {
     private lateinit var llBottomControls: LinearLayout
     private lateinit var ivBottom: ImageView
     private lateinit var bottomMenu: BottomNavigationView
-    private var acceleration = 0.0
-    private var gyro = 0.0
+    private var currentAt = 0.0
+    private var currentAn = 0.0
+    private var omega = 0.0
+    private var currentRadius = 0.0
     private lateinit var mqttClient: MqttConnection
     private lateinit var preferences: SharedPreferences
     private lateinit var edit: SharedPreferences.Editor
@@ -179,9 +182,6 @@ class StabilityActivity : AppCompatActivity() {
         preferences = this.getSharedPreferences(Constants.PREFERENCE_SMART_CAR, Context.MODE_PRIVATE)
         edit = preferences.edit()
 
-        tvAccelerationValue.text = acceleration.toString()
-        tvGyroscopeValue.text = gyro.toString()
-
         if(preferences.getBoolean("engine", false)) {
             tvParkingSensor.text = "deactivated"
             ivParkingSensorsActive.visibility = View.INVISIBLE
@@ -218,6 +218,9 @@ class StabilityActivity : AppCompatActivity() {
                 }
                 if(topic.contains("alarmProximity")) {
                     receivedProximityAlarm(message)
+                }
+                if(topic.contains("personDetection")) {
+                    receivedPersonDetection(message)
                 }
                 displayInMessagesList(String(message.payload))
             }
@@ -315,7 +318,7 @@ class StabilityActivity : AppCompatActivity() {
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             with(gatt) {
-                bluetoothGatt = gatt
+//                bluetoothGatt = gatt
                 Log.w("BluetoothGattCallback", "Discovered ${services.size} services for ${device.address}")
                 printGattTable()
                 readChValue()
@@ -451,31 +454,35 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedMovement(message: MqttMessage) {
-//        val currentAt = readRuleValue(String(message.payload), Constants.ACC_GYRO_STREAM)[1]
-//        val currentAn = readRuleValue(String(message.payload), Constants.ACC_GYRO_STREAM)[0]
-//        val omega = readRuleValue(String(message.payload), Constants.ACC_GYRO_STREAM)[5]
-        val currentAt = readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()
-        val currentAn = readSingleRuleValue(String(message.payload), Constants.ACC_X_VALUE).toDouble()
-        val omega = readSingleRuleValue(String(message.payload), Constants.GYRO_Z_VALUE).toDouble()
+        currentAt = readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()
+        currentAn = readSingleRuleValue(String(message.payload), Constants.ACC_X_VALUE).toDouble()
+        omega = readSingleRuleValue(String(message.payload), Constants.GYRO_Z_VALUE).toDouble()
 
-        val currentRadius = currentAn.toDouble() / (omega.toDouble() * omega.toDouble())
+        currentRadius = currentAn / (omega * omega)
 
-        tvAccelerationValue.text = "$currentAt m/s^2"
-        if(currentAt.toDouble() < 0.0) {
+        tvAccelerationValue.text = "${readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()} m/s^2"
+        if(readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() > 0.0) {
             tvSpeedValue.text = "speeding up"
-        } else if (currentAt.toDouble() > 0.0) {
+        } else if (readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() < 0.0) {
             tvSpeedValue.text = "slowing down"
         } else {
             tvSpeedValue.text = "constant speed"
         }
-        tvGyroscopeValue.text = "${String.format("%.2f", currentRadius)} m"
+        if(omega == 0.0) {
+            tvGyroscopeValue.text = "--"
+        } else {
+            if(currentRadius > 0.0) {
+                tvGyroscopeValue.text = "${String.format("%.2f", abs(currentRadius))} m - RIGHT"
+            } else {
+                tvGyroscopeValue.text = "${String.format("%.2f", abs(currentRadius))} m - LEFT"
+            }
+        }
 
-        if(currentRadius > Constants.ROAD_CURVE_LIMIT && currentAt.toDouble() > Constants.ACC_CURVE_LIMIT) {
+        if(currentRadius > Constants.ROAD_CURVE_LIMIT && currentAt > Constants.ACC_CURVE_LIMIT) {
             tvESC.text = "activated"
             ivESCActive.visibility = View.VISIBLE
             //send command for ESC notification
             sendIntCommand(bluetoothGatt, 3)
-            startForegroundService()
             val animation = AlphaAnimation(0.5f, 0f)
             animation.duration = 500
             animation.interpolator = LinearInterpolator()
@@ -521,11 +528,20 @@ class StabilityActivity : AppCompatActivity() {
             edit.commit()
             //notify user to turn on the lights
             sendIntCommand(bluetoothGatt, 5)
-            Toast.makeText(this@StabilityActivity, "Lights turned on!", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this@StabilityActivity, "Lights turned on!", Toast.LENGTH_SHORT).show()
         } else {
             edit.putBoolean("lights", false)
             edit.commit()
-            Toast.makeText(this@StabilityActivity, "Lights turned off!", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this@StabilityActivity, "Lights turned off!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun receivedPersonDetection(message: MqttMessage) {
+        if(readSingleRuleValue(String(message.payload), Constants.DETECTION_STREAM_VALUE).contains("true")) {
+            startForegroundService()
+        } else {
+            stopForegroundService()
         }
     }
 

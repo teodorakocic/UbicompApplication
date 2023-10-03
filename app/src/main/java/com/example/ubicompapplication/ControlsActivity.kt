@@ -160,13 +160,15 @@ class ControlsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedTemperature(message: MqttMessage) {
-        tvCurrentTemperature.text = "${readRuleValue(String(message.payload), Constants.TEMP_STREAM)} C"
+        tvCurrentTemperature.text = "${readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE)} C"
         currentTemperature = readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble()
         if(currentTemperature < Constants.TEMPERATURE_LOW) {
             clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
+            tvCoolerValue.text = "On"
         }
         if(currentTemperature > Constants.TEMPERATURE_HIGH) {
             clCooling.setBackgroundResource(R.drawable.controls_shape_cooling_on)
+            tvCoolerValue.text = "On"
         }
         if(currentTemperature in Constants.TEMPERATURE_LOW..Constants.TEMPERATURE_HIGH) {
             if(!preferences.getBoolean("climate", false)) {
@@ -190,6 +192,7 @@ class ControlsActivity : AppCompatActivity() {
             }
         } else {
             clVentilation.setBackgroundResource(R.drawable.controls_shape_ventilation_on)
+            tvFanValue.text = "On"
         }
     }
 
