@@ -10,7 +10,7 @@ open class Constants {
         const val LOCAL_NETWORK_CODE = 101
         const val TOPIC = "ubicomp/#"
         const val CLIENT_ID = "mqtt_project23"
-        const val SERVER_URI = "tcp://192.168.0.31:1884"
+        const val SERVER_URI = "tcp://10.66.62.116:1884"
         const val TEMPERATURE_HIGH = 35.2
         const val TEMPERATURE_LOW = 27.5
         const val AIRWAVE = 20
