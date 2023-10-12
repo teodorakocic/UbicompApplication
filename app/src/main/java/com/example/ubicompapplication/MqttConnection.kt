@@ -29,7 +29,7 @@ open class MqttConnection(val context: Context, val topics: Array<String>, val t
             override fun messageArrived(topic: String?, message: MqttMessage?) {
                 Log.d("AndroidMqtt", "Receive message: ${message.toString()} from topic: $topic")
                 if(topic != null && message != null) {
-                    mqttStatusListener?.onMessageArrived(topic = topic!!, message = message!!)
+                    mqttStatusListener?.onMessageArrived(topic = topic, message = message)
                 }
             }
 
@@ -46,6 +46,9 @@ open class MqttConnection(val context: Context, val topics: Array<String>, val t
 
     override fun connect() {
         val options = MqttConnectOptions()
+        options.userName = Constants.USERNAME
+        options.password = Constants.PASSWORD.toCharArray()
+
         try {
             mqttAndroid.connect(options, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {

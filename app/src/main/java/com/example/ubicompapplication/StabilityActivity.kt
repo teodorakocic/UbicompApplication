@@ -210,7 +210,7 @@ class StabilityActivity : AppCompatActivity() {
 
             @SuppressLint("SetTextI18n")
             override fun onMessageArrived(topic: String, message: MqttMessage) {
-                if(topic.contains("alarmLight")) {
+                if(topic.contains(Constants.COLOR_STREAM_VALUE)) {
                     receivedLightAlarm(message)
                 }
                 if(topic.contains("motion")) {

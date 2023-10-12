@@ -118,19 +118,19 @@ class ControlsActivity : AppCompatActivity() {
 
             @SuppressLint("SetTextI18n")
             override fun onMessageArrived(topic: String, message: MqttMessage) {
-                if(topic.contains("temp")) {
+                if(topic.contains(Constants.TEMP_STREAM_VALUE)) {
                     receivedTemperature(message)
                 }
-                if(topic.contains("press")) {
+                if(topic.contains(Constants.PRESSURE_STREAM_VALUE)) {
                     receivedPressure(message)
                 }
-                if(topic.contains("alarmHighTemp")) {
+                if(topic.contains(Constants.HIGH_TEMP_VALUE)) {
                     receivedAlarmForHighTemperature(message)
                 }
-                if(topic.contains("alarmLowTemp")) {
+                if(topic.contains(Constants.LOW_TEMP_VALUE)) {
                     receivedAlarmForLowTemperature(message)
                 }
-                if(topic.contains("alarmPress")) {
+                if(topic.contains(Constants.OVER_LIMIT_PRESSURE_VALUE)) {
                     receivedAlarmForPressureLimits(message)
                 }
                 displayInMessagesList(String(message.payload))
@@ -160,8 +160,10 @@ class ControlsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedTemperature(message: MqttMessage) {
-        tvCurrentTemperature.text = "${readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE)} C"
-        currentTemperature = readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble()
+//        tvCurrentTemperature.text = "${readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE)} C"
+//        currentTemperature = readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble()
+        tvCurrentTemperature.text = "${String.format("%.2f", message.payload)} C"
+        currentTemperature = String.format("%.2f", message.payload).toDouble()
         if(currentTemperature < Constants.TEMPERATURE_LOW) {
             clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
             tvCoolerValue.text = "On"
@@ -182,8 +184,10 @@ class ControlsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedPressure(message: MqttMessage) {
-        tvCurrentPressure.text = "${readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE)} kPa"
-        currentPressure = readRuleValue(String(message.payload), Constants.PRESSURE_STREAM).toDouble()
+//        tvCurrentPressure.text = "${readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE)} kPa"
+//        currentPressure = readRuleValue(String(message.payload), Constants.PRESSURE_STREAM).toDouble()
+        tvCurrentPressure.text = "${String.format("%.2f", message.payload)} kPa"
+        currentPressure= String.format("%.2f", message.payload).toDouble()
         if(currentPressure in Constants.PRESSURE_LOW .. Constants.PRESSURE_HIGH) {
             if(preferences.getBoolean("climate", false)) {
                 clVentilation.setBackgroundResource(R.drawable.controls_shape)
@@ -201,7 +205,8 @@ class ControlsActivity : AppCompatActivity() {
         if(!preferences.getBoolean("doors", false)) {
             Toast.makeText(this@ControlsActivity, "Close the door to make the air conditioner work more efficiently!", Toast.LENGTH_SHORT).show()
         }
-        if(readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble() > Constants.TEMPERATURE_HIGH) {
+//        if(readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble() > Constants.TEMPERATURE_HIGH) {
+        if(String.format("%.2f", message.payload).toDouble() > Constants.TEMPERATURE_HIGH) {
             clHeating.setBackgroundResource(R.drawable.controls_shape)
             clCooling.setBackgroundResource(R.drawable.controls_shape_cooling_on)
             tvCoolerValue.text = "Cold"
@@ -220,7 +225,8 @@ class ControlsActivity : AppCompatActivity() {
         if(!preferences.getBoolean("doors", false)) {
             Toast.makeText(this@ControlsActivity, "Close the door to make the air conditioner work more efficiently!", Toast.LENGTH_SHORT).show()
         }
-        if(readRuleValue(String(message.payload), Constants.LOW_TEMP_VALUE).toDouble() < Constants.TEMPERATURE_LOW) {
+//        if(readRuleValue(String(message.payload), Constants.LOW_TEMP_VALUE).toDouble() < Constants.TEMPERATURE_LOW) {
+        if(String.format("%.2f", message.payload).toDouble() < Constants.TEMPERATURE_LOW) {
             clCooling.setBackgroundResource(R.drawable.controls_shape)
             clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
             tvCoolerValue.text = "Heat"
@@ -239,7 +245,8 @@ class ControlsActivity : AppCompatActivity() {
         if(!preferences.getBoolean("doors", false)) {
             Toast.makeText(this@ControlsActivity, "Close the door to make the fan work more efficiently!", Toast.LENGTH_SHORT).show()
         }
-        if(readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
+//        if(readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
+        if(String.format("%.2f", message.payload).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
             clVentilation.setBackgroundResource(R.drawable.controls_shape_ventilation_on)
             tvFanValue.text = "On"
             tvFanValue.setTextColor(Color.parseColor("#90EE90"))
@@ -260,10 +267,10 @@ class ControlsActivity : AppCompatActivity() {
         tvAirwaveValue.text = "--"
     }
 
-    private fun readRuleValue(payload: String, key: String): String {
-        val jsonObject: JsonObject = Json.decodeFromString(payload)
-        return jsonObject[key].toString()
-    }
+//    private fun readRuleValue(payload: String, key: String): String {
+//        val jsonObject: JsonObject = Json.decodeFromString(payload)
+//        return jsonObject[key].toString()
+//    }
 
     override fun onDestroy() {
         super.onDestroy()
