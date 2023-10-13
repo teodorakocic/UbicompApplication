@@ -454,16 +454,20 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedMovement(message: MqttMessage) {
-        currentAt = readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()
-        currentAn = readSingleRuleValue(String(message.payload), Constants.ACC_X_VALUE).toDouble()
-        omega = readSingleRuleValue(String(message.payload), Constants.GYRO_Z_VALUE).toDouble()
+//        currentAt = readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()
+//        currentAn = readSingleRuleValue(String(message.payload), Constants.ACC_X_VALUE).toDouble()
+//        omega = readSingleRuleValue(String(message.payload), Constants.GYRO_Z_VALUE).toDouble()
+
+        currentAt = String(message.payload).split(",")[1].toDouble()
+        currentAn = String(message.payload).split(",")[0].toDouble()
+        omega = String(message.payload).split(",")[5].toDouble()
 
         currentRadius = currentAn / (omega * omega)
 
-        tvAccelerationValue.text = "${readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()} m/s^2"
-        if(readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() > 0.0) {
+        tvAccelerationValue.text = "${String(message.payload).split(",")[1].toDouble()} m/s^2"
+        if(String(message.payload).split(",")[1].toDouble() > 0.0) {
             tvSpeedValue.text = "speeding up"
-        } else if (readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() < 0.0) {
+        } else if (String(message.payload).split(",")[1].toDouble() < 0.0) {
             tvSpeedValue.text = "slowing down"
         } else {
             tvSpeedValue.text = "constant speed"
