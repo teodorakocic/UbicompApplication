@@ -46,6 +46,7 @@ open class Constants {
         const val ACC_X_VALUE = "subscribeAccX"
         const val ACC_Y_VALUE = "subscribeAccY"
         const val GYRO_Z_VALUE = "subscribeGyroZ"
+        const val MOTION_VALUE = "subscribeMotion"
         const val COLOR_STREAM_VALUE = "alarmBrightness"
         const val PROXIMITY_STREAM_VALUE = "alarmProximity"
         const val NOTIFICATION_VALUE = "subscribeMessage"

@@ -213,13 +213,13 @@ class StabilityActivity : AppCompatActivity() {
                 if(topic.contains(Constants.COLOR_STREAM_VALUE)) {
                     receivedLightAlarm(message)
                 }
-                if(topic.contains("motion")) {
+                if(topic.contains(Constants.MOTION_VALUE)) {
                     receivedMovement(message)
                 }
-                if(topic.contains("alarmProximity")) {
+                if(topic.contains(Constants.PROXIMITY_STREAM_VALUE)) {
                     receivedProximityAlarm(message)
                 }
-                if(topic.contains("personDetection")) {
+                if(topic.contains(Constants.DETECTION_STREAM_VALUE)) {
                     receivedPersonDetection(message)
                 }
                 displayInMessagesList(String(message.payload))
@@ -499,7 +499,8 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedProximityAlarm(message: MqttMessage) {
-        if(readSingleRuleValue(String(message.payload), Constants.PROXIMITY_STREAM_VALUE).toDouble() < 50.0) {
+//        if(readSingleRuleValue(String(message.payload), Constants.PROXIMITY_STREAM_VALUE).toDouble() < 50.0) {
+        if(String(message.payload).toDouble() < 50.0) {
             tvParkingSensor.text = "activated"
             ivParkingSensorsActive.visibility = View.VISIBLE
             //parking sensors notification
@@ -523,7 +524,8 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedLightAlarm(message: MqttMessage) {
-        if(readSingleRuleValue(String(message.payload), Constants.COLOR_STREAM_VALUE).toDouble() < 0.3) {
+//        if(readSingleRuleValue(String(message.payload), Constants.COLOR_STREAM_VALUE).toDouble() < 0.3) {
+        if(String(message.payload).toDouble() < 0.3) {
             edit.putBoolean("lights", true)
             edit.commit()
             //notify user to turn on the lights
@@ -538,7 +540,8 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedPersonDetection(message: MqttMessage) {
-        if(readSingleRuleValue(String(message.payload), Constants.DETECTION_STREAM_VALUE).contains("true")) {
+//        if(readSingleRuleValue(String(message.payload), Constants.DETECTION_STREAM_VALUE).contains("true")) {
+        if(String(message.payload).contains("true")) {
             startForegroundService()
         } else {
             stopForegroundService()
