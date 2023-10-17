@@ -9,7 +9,6 @@ import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
-import android.bluetooth.BluetoothSocket
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -18,7 +17,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -47,7 +45,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.eclipse.paho.client.mqttv3.MqttMessage
-import java.io.IOException
 import java.math.BigInteger
 import java.util.UUID
 import kotlin.math.abs
@@ -219,7 +216,7 @@ class StabilityActivity : AppCompatActivity() {
                 if(topic.contains(Constants.PROXIMITY_STREAM_VALUE)) {
                     receivedProximityAlarm(message)
                 }
-                if(topic.contains(Constants.DETECTION_STREAM_VALUE)) {
+                if(topic.contains(Constants.NOTIFICATION_VALUE)) {
                     receivedPersonDetection(message)
                 }
                 displayInMessagesList(String(message.payload))
@@ -454,20 +451,16 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedMovement(message: MqttMessage) {
-//        currentAt = readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()
-//        currentAn = readSingleRuleValue(String(message.payload), Constants.ACC_X_VALUE).toDouble()
-//        omega = readSingleRuleValue(String(message.payload), Constants.GYRO_Z_VALUE).toDouble()
-
-        currentAt = String(message.payload).split(",")[1].toDouble()
-        currentAn = String(message.payload).split(",")[0].toDouble()
-        omega = String(message.payload).split(",")[5].toDouble()
+        currentAt = readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()
+        currentAn = readSingleRuleValue(String(message.payload), Constants.ACC_X_VALUE).toDouble()
+        omega = readSingleRuleValue(String(message.payload), Constants.GYRO_Z_VALUE).toDouble()
 
         currentRadius = currentAn / (omega * omega)
 
-        tvAccelerationValue.text = "${String(message.payload).split(",")[1].toDouble()} m/s^2"
-        if(String(message.payload).split(",")[1].toDouble() > 0.0) {
+        tvAccelerationValue.text = "${readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()} m/s^2"
+        if(readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() > 0.0) {
             tvSpeedValue.text = "speeding up"
-        } else if (String(message.payload).split(",")[1].toDouble() < 0.0) {
+        } else if (readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() < 0.0) {
             tvSpeedValue.text = "slowing down"
         } else {
             tvSpeedValue.text = "constant speed"
@@ -503,8 +496,7 @@ class StabilityActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedProximityAlarm(message: MqttMessage) {
-//        if(readSingleRuleValue(String(message.payload), Constants.PROXIMITY_STREAM_VALUE).toDouble() < 50.0) {
-        if(String(message.payload).toDouble() < 50.0) {
+        if(String(message.payload).toDouble() < Constants.PARKING_SENSORS_VALUE) {
             tvParkingSensor.text = "activated"
             ivParkingSensorsActive.visibility = View.VISIBLE
             //parking sensors notification
@@ -529,7 +521,7 @@ class StabilityActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun receivedLightAlarm(message: MqttMessage) {
 //        if(readSingleRuleValue(String(message.payload), Constants.COLOR_STREAM_VALUE).toDouble() < 0.3) {
-        if(String(message.payload).toDouble() < 0.3) {
+        if(String(message.payload).toInt() < 1) {
             edit.putBoolean("lights", true)
             edit.commit()
             //notify user to turn on the lights

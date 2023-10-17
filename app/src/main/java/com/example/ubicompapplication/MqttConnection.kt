@@ -46,8 +46,8 @@ open class MqttConnection(val context: Context, val topics: Array<String>, val t
 
     override fun connect() {
         val options = MqttConnectOptions()
-        options.userName = Constants.USERNAME
-        options.password = Constants.PASSWORD.toCharArray()
+//        options.userName = Constants.USERNAME
+//        options.password = Constants.PASSWORD.toCharArray()
 
         try {
             mqttAndroid.connect(options, null, object : IMqttActionListener {

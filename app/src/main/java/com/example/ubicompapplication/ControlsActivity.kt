@@ -1,15 +1,10 @@
 package com.example.ubicompapplication
 
 import android.annotation.SuppressLint
-import android.app.PendingIntent
-import android.app.ProgressDialog
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
-import android.graphics.ColorSpace.connect
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -21,18 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.MqttMessage
-import java.util.Timer
-import java.util.TimerTask
-import java.util.UUID
 
 
 class ControlsActivity : AppCompatActivity() {
@@ -160,10 +144,8 @@ class ControlsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedTemperature(message: MqttMessage) {
-//        tvCurrentTemperature.text = "${readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE)} C"
-//        currentTemperature = readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble()
-        tvCurrentTemperature.text = "${String.format("%.2f", message.payload)} C"
-        currentTemperature = String.format("%.2f", message.payload).toDouble()
+        tvCurrentTemperature.text = "${String(message.payload)} C"
+        currentTemperature = String(message.payload).toDouble()
         if(currentTemperature < Constants.TEMPERATURE_LOW) {
             clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
             tvCoolerValue.text = "On"
@@ -184,10 +166,8 @@ class ControlsActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun receivedPressure(message: MqttMessage) {
-//        tvCurrentPressure.text = "${readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE)} kPa"
-//        currentPressure = readRuleValue(String(message.payload), Constants.PRESSURE_STREAM).toDouble()
-        tvCurrentPressure.text = "${String.format("%.2f", message.payload)} kPa"
-        currentPressure= String.format("%.2f", message.payload).toDouble()
+        tvCurrentPressure.text = "${String(message.payload)} kPa"
+        currentPressure= String(message.payload).toDouble()
         if(currentPressure in Constants.PRESSURE_LOW .. Constants.PRESSURE_HIGH) {
             if(preferences.getBoolean("climate", false)) {
                 clVentilation.setBackgroundResource(R.drawable.controls_shape)
@@ -206,18 +186,18 @@ class ControlsActivity : AppCompatActivity() {
             Toast.makeText(this@ControlsActivity, "Close the door to make the air conditioner work more efficiently!", Toast.LENGTH_SHORT).show()
         }
 //        if(readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble() > Constants.TEMPERATURE_HIGH) {
-        if(String.format("%.2f", message.payload).toDouble() > Constants.TEMPERATURE_HIGH) {
-            clHeating.setBackgroundResource(R.drawable.controls_shape)
-            clCooling.setBackgroundResource(R.drawable.controls_shape_cooling_on)
-            tvCoolerValue.text = "Cold"
-            tvCoolerValue.setTextColor(Color.parseColor("#00CCFF"))
-            edit.putBoolean("climate", true)
+//        if(String.format("%.2f", message.payload).toDouble() > Constants.TEMPERATURE_HIGH) {
+        clHeating.setBackgroundResource(R.drawable.controls_shape)
+        clCooling.setBackgroundResource(R.drawable.controls_shape_cooling_on)
+        tvCoolerValue.text = "Cold"
+        tvCoolerValue.setTextColor(Color.parseColor("#00CCFF"))
+        edit.putBoolean("climate", true)
+        edit.commit()
+        Handler(Looper.getMainLooper()).postDelayed({
+            edit.putBoolean("climate", false)
             edit.commit()
-            Handler(Looper.getMainLooper()).postDelayed({
-                edit.putBoolean("climate", false)
-                edit.commit()
-            }, 3_000)
-        }
+        }, 3_000)
+//        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -226,18 +206,18 @@ class ControlsActivity : AppCompatActivity() {
             Toast.makeText(this@ControlsActivity, "Close the door to make the air conditioner work more efficiently!", Toast.LENGTH_SHORT).show()
         }
 //        if(readRuleValue(String(message.payload), Constants.LOW_TEMP_VALUE).toDouble() < Constants.TEMPERATURE_LOW) {
-        if(String.format("%.2f", message.payload).toDouble() < Constants.TEMPERATURE_LOW) {
-            clCooling.setBackgroundResource(R.drawable.controls_shape)
-            clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
-            tvCoolerValue.text = "Heat"
-            tvCoolerValue.setTextColor(Color.parseColor("#E3242B"))
-            edit.putBoolean("climate", true)
+//        if(String.format("%.2f", message.payload).toDouble() < Constants.TEMPERATURE_LOW) {
+        clCooling.setBackgroundResource(R.drawable.controls_shape)
+        clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
+        tvCoolerValue.text = "Heat"
+        tvCoolerValue.setTextColor(Color.parseColor("#E3242B"))
+        edit.putBoolean("climate", true)
+        edit.commit()
+        Handler(Looper.getMainLooper()).postDelayed({
+            edit.putBoolean("climate", false)
             edit.commit()
-            Handler(Looper.getMainLooper()).postDelayed({
-                edit.putBoolean("climate", false)
-                edit.commit()
-            }, 3_000)
-        }
+        }, 3_000)
+//        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -246,17 +226,17 @@ class ControlsActivity : AppCompatActivity() {
             Toast.makeText(this@ControlsActivity, "Close the door to make the fan work more efficiently!", Toast.LENGTH_SHORT).show()
         }
 //        if(readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
-        if(String.format("%.2f", message.payload).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
-            clVentilation.setBackgroundResource(R.drawable.controls_shape_ventilation_on)
-            tvFanValue.text = "On"
-            tvFanValue.setTextColor(Color.parseColor("#90EE90"))
-            edit.putBoolean("climate", true)
+//        if(String.format("%.2f", message.payload).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
+        clVentilation.setBackgroundResource(R.drawable.controls_shape_ventilation_on)
+        tvFanValue.text = "On"
+        tvFanValue.setTextColor(Color.parseColor("#90EE90"))
+        edit.putBoolean("climate", true)
+        edit.commit()
+        Handler(Looper.getMainLooper()).postDelayed({
+            edit.putBoolean("climate", false)
             edit.commit()
-            Handler(Looper.getMainLooper()).postDelayed({
-                edit.putBoolean("climate", false)
-                edit.commit()
-            }, 4_500)
-        }
+        }, 4_500)
+//        }
     }
 
     private fun engineStoppedUI() {
