@@ -186,18 +186,18 @@ class ControlsActivity : AppCompatActivity() {
             Toast.makeText(this@ControlsActivity, "Close the door to make the air conditioner work more efficiently!", Toast.LENGTH_SHORT).show()
         }
 //        if(readRuleValue(String(message.payload), Constants.TEMP_STREAM_VALUE).toDouble() > Constants.TEMPERATURE_HIGH) {
-//        if(String.format("%.2f", message.payload).toDouble() > Constants.TEMPERATURE_HIGH) {
-        clHeating.setBackgroundResource(R.drawable.controls_shape)
-        clCooling.setBackgroundResource(R.drawable.controls_shape_cooling_on)
-        tvCoolerValue.text = "Cold"
-        tvCoolerValue.setTextColor(Color.parseColor("#00CCFF"))
-        edit.putBoolean("climate", true)
-        edit.commit()
-        Handler(Looper.getMainLooper()).postDelayed({
-            edit.putBoolean("climate", false)
+        if(String(message.payload).toBoolean()) {
+            clHeating.setBackgroundResource(R.drawable.controls_shape)
+            clCooling.setBackgroundResource(R.drawable.controls_shape_cooling_on)
+            tvCoolerValue.text = "Cold"
+            tvCoolerValue.setTextColor(Color.parseColor("#00CCFF"))
+            edit.putBoolean("climate", true)
             edit.commit()
-        }, 3_000)
-//        }
+            Handler(Looper.getMainLooper()).postDelayed({
+                edit.putBoolean("climate", false)
+                edit.commit()
+            }, 3_000)
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -206,18 +206,18 @@ class ControlsActivity : AppCompatActivity() {
             Toast.makeText(this@ControlsActivity, "Close the door to make the air conditioner work more efficiently!", Toast.LENGTH_SHORT).show()
         }
 //        if(readRuleValue(String(message.payload), Constants.LOW_TEMP_VALUE).toDouble() < Constants.TEMPERATURE_LOW) {
-//        if(String.format("%.2f", message.payload).toDouble() < Constants.TEMPERATURE_LOW) {
-        clCooling.setBackgroundResource(R.drawable.controls_shape)
-        clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
-        tvCoolerValue.text = "Heat"
-        tvCoolerValue.setTextColor(Color.parseColor("#E3242B"))
-        edit.putBoolean("climate", true)
-        edit.commit()
-        Handler(Looper.getMainLooper()).postDelayed({
-            edit.putBoolean("climate", false)
+        if(String(message.payload).toBoolean()) {
+            clCooling.setBackgroundResource(R.drawable.controls_shape)
+            clHeating.setBackgroundResource(R.drawable.controls_shape_heating_on)
+            tvCoolerValue.text = "Heat"
+            tvCoolerValue.setTextColor(Color.parseColor("#E3242B"))
+            edit.putBoolean("climate", true)
             edit.commit()
-        }, 3_000)
-//        }
+            Handler(Looper.getMainLooper()).postDelayed({
+                edit.putBoolean("climate", false)
+                edit.commit()
+            }, 3_000)
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -226,17 +226,17 @@ class ControlsActivity : AppCompatActivity() {
             Toast.makeText(this@ControlsActivity, "Close the door to make the fan work more efficiently!", Toast.LENGTH_SHORT).show()
         }
 //        if(readRuleValue(String(message.payload), Constants.PRESSURE_STREAM_VALUE).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
-//        if(String.format("%.2f", message.payload).toDouble() !in Constants.PRESSURE_LOW..Constants.PRESSURE_HIGH) {
-        clVentilation.setBackgroundResource(R.drawable.controls_shape_ventilation_on)
-        tvFanValue.text = "On"
-        tvFanValue.setTextColor(Color.parseColor("#90EE90"))
-        edit.putBoolean("climate", true)
-        edit.commit()
-        Handler(Looper.getMainLooper()).postDelayed({
-            edit.putBoolean("climate", false)
+        if(String(message.payload).toBoolean()) {
+            clVentilation.setBackgroundResource(R.drawable.controls_shape_ventilation_on)
+            tvFanValue.text = "On"
+            tvFanValue.setTextColor(Color.parseColor("#90EE90"))
+            edit.putBoolean("climate", true)
             edit.commit()
-        }, 4_500)
-//        }
+            Handler(Looper.getMainLooper()).postDelayed({
+                edit.putBoolean("climate", false)
+                edit.commit()
+            }, 4_500)
+        }
     }
 
     private fun engineStoppedUI() {

@@ -16,7 +16,7 @@ open class Constants {
         const val AIRWAVE = 20
         const val PRESSURE_HIGH = 103.5
         const val PRESSURE_LOW = 99.0
-        const val PARKING_SENSORS_VALUE = 36.0
+        const val PARKING_SENSORS_VALUE = 32.0
 
         const val TEMP_STREAM_VALUE = "subscribeTemperature"
         const val PRESSURE_STREAM_VALUE = "subscribePressure"
@@ -32,7 +32,7 @@ open class Constants {
         const val NOTIFICATION_VALUE = "alarmDetection"
 
         const val ROAD_CURVE_LIMIT = 0.15
-        const val ACC_CURVE_LIMIT = 0.5
+        const val ACC_CURVE_LIMIT = 0.2
         const val LOCATION_PERMISSION_REQUEST_CODE = 2
         const val LED_SERVICE = "19B10010-E8F2-537E-4F6C-D104768A1214"
         const val LED_CHARACTERISTIC = "19B10011-E8F2-537E-4F6C-D104768A1214"

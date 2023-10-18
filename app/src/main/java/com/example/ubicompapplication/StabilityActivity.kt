@@ -457,6 +457,8 @@ class StabilityActivity : AppCompatActivity() {
 
         currentRadius = currentAn / (omega * omega)
 
+        Log.d("motion corner radius", "$currentRadius")
+
         tvAccelerationValue.text = "${readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble()} m/s^2"
         if(readSingleRuleValue(String(message.payload), Constants.ACC_Y_VALUE).toDouble() > 0.0) {
             tvSpeedValue.text = "speeding up"
@@ -475,7 +477,7 @@ class StabilityActivity : AppCompatActivity() {
             }
         }
 
-        if(currentRadius > Constants.ROAD_CURVE_LIMIT && currentAt > Constants.ACC_CURVE_LIMIT) {
+        if(currentRadius > Constants.ROAD_CURVE_LIMIT && abs(currentAt) > Constants.ACC_CURVE_LIMIT) {
             tvESC.text = "activated"
             ivESCActive.visibility = View.VISIBLE
             //send command for ESC notification
@@ -521,7 +523,7 @@ class StabilityActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun receivedLightAlarm(message: MqttMessage) {
 //        if(readSingleRuleValue(String(message.payload), Constants.COLOR_STREAM_VALUE).toDouble() < 0.3) {
-        if(String(message.payload).toInt() < 1) {
+        if(String(message.payload).toDouble() < 1.0) {
             edit.putBoolean("lights", true)
             edit.commit()
             //notify user to turn on the lights
